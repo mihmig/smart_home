@@ -1,0 +1,64 @@
+{
+  "data": {
+    "definition": {
+      "description": "Contact sensor",
+      "exposes": [
+        {
+          "access": 1,
+          "description": "Indicates if the contact is closed (= true) or open (= false)",
+          "name": "contact",
+          "property": "contact",
+          "type": "binary",
+          "value_off": true,
+          "value_on": false
+        },
+        {
+          "access": 1,
+          "description": "Indicates if the battery of this device is almost empty",
+          "name": "battery_low",
+          "property": "battery_low",
+          "type": "binary",
+          "value_off": false,
+          "value_on": true
+        },
+        {
+          "access": 1,
+          "description": "Remaining battery in %",
+          "name": "battery",
+          "property": "battery",
+          "type": "numeric",
+          "unit": "%",
+          "value_max": 100,
+          "value_min": 0
+        },
+        {
+          "access": 1,
+          "description": "Voltage of the battery in millivolts",
+          "name": "voltage",
+          "property": "voltage",
+          "type": "numeric",
+          "unit": "mV"
+        },
+        {
+          "access": 1,
+          "description": "Link quality (signal strength)",
+          "name": "linkquality",
+          "property": "linkquality",
+          "type": "numeric",
+          "unit": "lqi",
+          "value_max": 255,
+          "value_min": 0
+        }
+      ],
+      "model": "SNZB-04",
+      "options": [],
+      "supports_ota": false,
+      "vendor": "SONOFF"
+    },
+    "friendly_name": "0x00124b0025130e7d",
+    "ieee_address": "0x00124b0025130e7d",
+    "status": "successful",
+    "supported": true
+  },
+  "type": "device_interview"
+}

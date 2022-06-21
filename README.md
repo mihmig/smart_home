@@ -1,29 +1,37 @@
-# README #
+## Скрипты умного дома ##
+* Включение света в прихожей при входе в квартиру (заменить на датчик движения)
+* Датчик дверцы морозильника в кладовой
+* Температура/нагрузка процессора/видеокарты вовремя заметить перегрев (opensource hardware monitor)
 
-This README would normally document whatever steps are necessary to get your application up and running.
+### Альтернативы ### 
+* HomeAssistant
+* MajorDomo
+* OpenHub https://habr.com/ru/post/232969/
+  Скрипты и правила описываются в файлах директорий scripts и rules соответсвенно на языке Xtend, разработанном Eclipse. 
 
-### What is this repository for? ###
+### Используемые технологии ###
+* Python 3.10
+* Zigbee2mqtt
+* MQTT-серве mosquitto
+* MariaDb (MysqlDb)
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+### Архитектура/Устройства ###
+* Raspberry Pi 3
+* Датчик открытия SONOFF SNZB-04
+* Датчик температуры и влажности https://www.zigbee2mqtt.io/devices/WSD500A.html
+* Одноканальное реле https://www.zigbee2mqtt.io/devices/WHD02.html
+* Датчик температуры и влажности c e-ink дисплеем https://github.com/smartboxchannel/EFEKTA-eTH102z
+* Датчики на ардуино/ESP WROOM32
+* Bluetooth - устройства поблизости
+* Роутер - через syslog - подключение/отключение wifi
+* Программные датчики (температура процессора/видеокарты), открытое окно программы, клики мышкой/клавиши
+* Android - можно ли детектировать включение/выключение экрана, текущую программу
 
-### How do I get set up? ###
+### Установка ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+### Ссылки ###
+* https://github.com/smartboxchannel/EFEKTA-eTH102z
 
-### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+### Алгоритмы
+* Для датчиков открытия: события(open/close) логируются (при желании - алергы в телеграм), состо
