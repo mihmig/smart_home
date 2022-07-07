@@ -1,42 +1,28 @@
 from datetime import datetime
 
 from paho.mqtt import client as mqtt_client
-from mqtt.credentials import username, password, topic, broker, port
-
-client_id = f'python-mqtt-subscriber'
 
 class Subscriber:
     def __init__(self, config):
         self.client = mqtt_client.Client(config['client_id'])
-        client.username_pw_set(username, password)
-        client.on_connect = on_connect
-        client.connect(broker, port)
+        self.client.username_pw_set(config['username'], config['password'])
+        self.client.on_connect = self.on_connect
+        self.client.connect(config['broker'], config['port'])
+        self.connected = False
+        self.client.on_message = self.on_message
+        self.client.subscribe('#')
 
-def connect_mqtt() -> mqtt_client:
-    def on_connect(client, userdata, flags, rc):
+    def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             print("Connected to MQTT Broker!")
+            self.connected = True
         else:
             print("Failed to connect, return code %d\n", rc)
+            self.connected = False
 
-
-    return client
-
-
-def subscribe(client: mqtt_client):
-    def on_message(client, userdata, msg):
+    def on_message(self, client, userdata, msg):
         moment = datetime.now().strftime("%Y-%d-%m %H:%M:%S")
         print(f"{moment} {msg.topic} {msg.payload.decode()}")
 
-    client.subscribe('#')
-    client.on_message = on_message
-
-
-def run():
-    client = connect_mqtt()
-    subscribe(client)
-    client.loop_forever()
-
-
-if __name__ == '__main__':
-    run()
+    def loop(self):
+        self.client.loop_forever()

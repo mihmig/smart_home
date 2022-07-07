@@ -20,6 +20,7 @@
 * Датчик открытия SONOFF SNZB-04
 * Датчик температуры и влажности https://www.zigbee2mqtt.io/devices/WSD500A.html
 * Одноканальное реле https://www.zigbee2mqtt.io/devices/WHD02.html
+* Модуль работы с реле Ke-USB24R
 * Датчик температуры и влажности c e-ink дисплеем https://github.com/smartboxchannel/EFEKTA-eTH102z
 * Датчики на ардуино/ESP WROOM32
 * Bluetooth - устройства поблизости
@@ -34,4 +35,8 @@
 
 
 ### Алгоритмы
-* Для датчиков открытия: события(open/close) логируются (при желании - алергы в телеграм), состо
+* Для датчиков открытия: события(open/close) логируются в таблицу events (при желании - алерты в телеграм),
+  текущее состояние датчика - в таблицу state
+
+### Прочее
+* Просмотр COM-портов: python3 -m serial.tools.list_ports
