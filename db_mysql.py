@@ -58,7 +58,7 @@ class Db:
 
     # Получение множества строк (именованные кортежи)
     def get_data(self, query: str, params: list = None):
-        cursor = self.conn.cursor(named_tuple=True)
+        cursor = self.conn.cursor(cursor=DictCursor)
         cursor.execute(query, params)
         return cursor.fetchall()
 
