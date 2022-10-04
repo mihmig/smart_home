@@ -30,9 +30,7 @@ if __name__ == '__main__':
     ke = Ke('COM8')
     for relayNum in ('1','2','3','4'):
         ke.relayOn(relayNum)
-        time.sleep(2)
-
-    time.sleep(10)
+        time.sleep(10)
 
     for relayNum in ('1', '2', '3', '4'):
         ke.relayOff(relayNum)
