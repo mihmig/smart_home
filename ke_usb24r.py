@@ -1,9 +1,11 @@
 # Модуль работы с реле Ke-USB24R (https://www.kernelchip.ru/Ke-USB24R.php)
 # - USB модуль управления (Определяется как виртуальный COM порт)
+#   (в linux - например как порт  /dev/ttyACM0
 # - Реле 220В / 7А, 4 штуки во включенном режиме потребляет 10 мА
 # - Линии ввода/вывода: 18 штук
 # - АЦП: 4 штуки (10 бит)
 # - Производство: Россия (KernelChip)
+import sys
 import time
 
 import serial
@@ -29,7 +31,9 @@ class Ke:
 
 
 if __name__ == '__main__':
-    ke = Ke('COM8')
+    if len(sys.argv) < 2:
+        print(f'Usage: {sys.argv[0]} COM_PORT')
+    ke = Ke(sys.argv[1])
     for relayNum in ('1', '2', '3', '4'):
         ke.relayOn(relayNum)
         time.sleep(10)
