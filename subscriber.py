@@ -2,12 +2,13 @@ from datetime import datetime
 from paho.mqtt import client as mqtt_client
 
 from db_mysql import Db
+from ke_usb24r import Ke
 from models import Event
 import json
 
 
 class Subscriber:
-    def __init__(self, config, db: Db):
+    def __init__(self, config, db: Db, ke: Ke):
         self.client = mqtt_client.Client(config['client_id'])
         self.client.username_pw_set(config['username'], config['password'])
         self.client.on_connect = self.on_connect
@@ -16,6 +17,7 @@ class Subscriber:
         self.client.on_message = self.on_message
         self.client.subscribe('#')
         self.db = db
+        self.ke = ke
 
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
@@ -65,6 +67,10 @@ class Subscriber:
                         self.relay_toggle('0xa4c1383b6db1be29')
                     case '2_single':
                         self.relay_toggle('0xa4c138f7f972b7b0')
+                    case '3_single':
+                        self.ke.relay_on('1')
+                    case '4_single':
+                        self.ke.relay_off('1')
                 self.db.insert('INSERT INTO ' + '`' + device_id +
                                '` (action, battery, linkquality)' +
                                ' VALUES (%s, %s, %s)',

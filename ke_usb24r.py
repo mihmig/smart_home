@@ -12,22 +12,23 @@ import serial
 
 
 class Ke:
-    def __init__(self, port: str):
-        self.ser = serial.Serial(port, timeout=1)
-        self.ser.write(b'$KE,SER\r\n')
-        print(self.ser.readline().decode('utf-8'))
+    def __init__(self, config):
+        self.ser = serial.Serial(config['port'], timeout=1)
+        self.ser.write(b'$KE\r\n')
+        res = self.ser.read_until('\r\n')
+        print(res.decode('utf-8'))
 
     def relay_on(self, relay_num: str) -> str:
         command = f'$KE,REL,{relay_num},1\r\n'.encode()
         print(command)
         self.ser.write(command)
-        return self.ser.readline().decode('utf-8')
+        return self.ser.read_until('\r\n').decode('utf-8')
 
     def relay_off(self, relay_num: str) -> str:
         command = f'$KE,REL,{relay_num},0\r\n'.encode()
         print(command)
         self.ser.write(command)
-        return self.ser.readline().decode('utf-8')
+        return self.ser.read_until('\r\n').decode('utf-8')
 
 
 if __name__ == '__main__':
@@ -35,7 +36,12 @@ if __name__ == '__main__':
         print(f'Usage: {sys.argv[0]} COM_PORT')
         exit(-1)
 
-    ke = Ke(sys.argv[1])
+    ke = Ke({'port':sys.argv[1]})
+    ke.relay_on('1')
+    time.sleep(1)
+    ke.relay_off('1')
+    exit(0)
+
     for relay_num in ('1', '2', '3', '4'):
         ke.relay_on(relay_num)
         print(ke.get_relay_status(relay_num))
