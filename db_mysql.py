@@ -67,8 +67,14 @@ class Db:
         cursor = self.conn.cursor()
         result = cursor.execute(query, params)
         cursor.close()
+        self.conn.commit()
         return result
 
     # Вставка, при использовании конструкции RETURNING - возвращает сгенерированное поле
     def insert(self, query: str, params: list = None) -> str|int:
-        return self.get_value(query, params)
+        cursor = self.conn.cursor()
+        cursor.execute(query, params)
+        insert_id = cursor.connection.insert_id()
+        cursor.close()
+        self.conn.commit()
+        return insert_id

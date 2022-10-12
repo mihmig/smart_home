@@ -8,11 +8,13 @@ import time
 
 import serial
 
+
 class Ke:
     def __init__(self, port: str):
         self.ser = serial.Serial(port, timeout=1)
         self.ser.write(b'$KE,SER\r\n')
         print(self.ser.readline().decode('utf-8'))
+
     def relayOn(self, relayNum: str):
         command = f'$KE,REL,{relayNum},1\r\n'.encode()
         print(command)
@@ -28,7 +30,7 @@ class Ke:
 
 if __name__ == '__main__':
     ke = Ke('COM8')
-    for relayNum in ('1','2','3','4'):
+    for relayNum in ('1', '2', '3', '4'):
         ke.relayOn(relayNum)
         time.sleep(10)
 
