@@ -84,6 +84,21 @@ CREATE TABLE `0xa4c138c934616c86`
 ) ENGINE=InnoDB;
 ALTER TABLE zigbee.`0xa4c138c934616c86` COMMENT='TuYa WSD500A Температура и влажность в спальне';
 
+-- Датчик температуры и влажности (TuYa WSD500A)
+CREATE TABLE `0xa4c138187be8cae9`
+(
+    id INT AUTO_INCREMENT,
+    `datetime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    battery FLOAT,
+    linkquality INT,
+    voltage INT,
+    temperature FLOAT,
+    humidity FLOAT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+ALTER TABLE zigbee.`0xa4c138187be8cae9` COMMENT='TuYa WSD500A Температура и влажность T4';
+
 -- Датчик температуры и влажности LCD (TuYa CX-7026)
 CREATE TABLE `0xa4c138110e938e98`
 (

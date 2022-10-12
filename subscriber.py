@@ -41,7 +41,7 @@ class Subscriber:
                                [event.battery, event.battery_low, event.contact,
                                 event.linkquality, event.tamper, event.voltage]
                                )
-            case '0xa4c138c934616c86':  # Датчик температуры и влажности
+            case '0xa4c138c934616c86'|'0xa4c138eb4d0d071f'|'0xa4c13883adf4629f'|'0xa4c138187be8cae9':  # Датчик температуры и влажности TuYa WSD500A
                 self.db.insert('INSERT INTO ' + '`' + device_id +
                                '` (temperature, humidity, battery, linkquality, voltage)' +
                                ' VALUES (%s, %s, %s, %s, %s)',
