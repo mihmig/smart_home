@@ -9,26 +9,50 @@ import sys
 import time
 
 import serial
+from serial import SerialException
 
 
 class Ke:
     def __init__(self, config):
-        self.ser = serial.Serial(config['port'], timeout=1)
-        self.ser.write(b'$KE\r\n')
-        res = self.ser.read_until('\r\n')
-        print(res.decode('utf-8'))
+        self.connected = False
+        self.config = config
+        self.ser = None
+        self.try_connect()
 
-    def relay_on(self, relay_num: str) -> str:
-        command = f'$KE,REL,{relay_num},1\r\n'.encode()
-        print(command)
-        self.ser.write(command)
-        return self.ser.read_until('\r\n').decode('utf-8')
+    def try_connect(self):
+        try:
+            self.ser = serial.Serial(self.config['port'], timeout=1)
+            self.ser.write(b'$KE\r\n')
+            res = self.ser.read_until('\r\n')
+            print(res.decode('utf-8'))
+        except SerialException as error:
+            print(f'ERROR: failed to connect to serial port {self.config["port"]}: {error}')
+            self.connected = False
+            return
+        self.connected = True
 
-    def relay_off(self, relay_num: str) -> str:
-        command = f'$KE,REL,{relay_num},0\r\n'.encode()
-        print(command)
-        self.ser.write(command)
-        return self.ser.read_until('\r\n').decode('utf-8')
+    # Включение реле
+    def relay_on(self, relay_number: str) -> str:
+        return self.send_command(f'$KE,REL,{relay_number},1\r\n')
+
+    # Выключение реле
+    def relay_off(self, relay_number: str) -> str:
+        return self.send_command(f'$KE,REL,{relay_number},0\r\n')
+
+    #  Отправка команды в порт
+    def send_command(self, command: str) -> str | None:
+        if not self.connected:
+            self.try_connect()
+        if not self.connected:
+            print('ERROR: not connected to serial port')
+            return None
+        try:
+            self.ser.write(command.encode())
+            return self.ser.read_until('\r\n').decode('utf-8')
+        except SerialException as error:
+            print(f'ERROR: failed to send data to serial port {self.config["port"]}: {error}')
+            self.connected = False
+            return None
 
 
 if __name__ == '__main__':
@@ -36,7 +60,7 @@ if __name__ == '__main__':
         print(f'Usage: {sys.argv[0]} COM_PORT')
         exit(-1)
 
-    ke = Ke({'port':sys.argv[1]})
+    ke = Ke({'port': sys.argv[1]})
     ke.relay_on('1')
     time.sleep(1)
     ke.relay_off('1')
@@ -44,10 +68,8 @@ if __name__ == '__main__':
 
     for relay_num in ('1', '2', '3', '4'):
         ke.relay_on(relay_num)
-        print(ke.get_relay_status(relay_num))
         time.sleep(1)
 
     for relay_num in ('1', '2', '3', '4'):
         ke.relay_off(relay_num)
-        print(ke.get_relay_status(relay_num))
         time.sleep(1)

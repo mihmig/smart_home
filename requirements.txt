@@ -3,3 +3,4 @@ paho-mqtt~=1.6.1
 mqtt~=0.0.1
 pyserial~=3.5
 pydantic~=1.9.1
+numpy~=1.23.4

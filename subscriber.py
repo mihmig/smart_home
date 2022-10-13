@@ -28,35 +28,39 @@ class Subscriber:
             self.connected = False
 
     def relay_toggle(self, friendly_name: str):
-        topic = f"zigbee2mqtt/{friendly_name}/set"
-        command = '{"state": "TOGGLE"}'
-        self.client.publish(topic, command)
+        self.client.publish(f'zigbee2mqtt/{friendly_name}/set', '{"state": "TOGGLE"}')
 
-    def log_event(self, device_id: str, event: Event):
-        match device_id:
+    def relay_on(self, friendly_name: str):
+        self.client.publish(f'zigbee2mqtt/{friendly_name}/set', '{"state": "ON"}')
+
+    def relay_off(self, friendly_name: str):
+        self.client.publish(f'zigbee2mqtt/{friendly_name}/set', '{"state": "OFF"}')
+
+    def log_event(self, friendly_name: str, event: Event):
+        match friendly_name:
             case '0x00124b0025120b07' | '0x00124b0025130e7d' | '0x00124b002511e75e':  # Датчики открытия
-                self.db.insert('INSERT INTO ' + '`' + device_id +
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                '` (battery, battery_low, contact, linkquality, tamper, voltage)' +
                                ' VALUES (%s, %s, %s, %s, %s, %s)',
                                [event.battery, event.battery_low, event.contact,
                                 event.linkquality, event.tamper, event.voltage]
                                )
             case '0xa4c138c934616c86'|'0xa4c138eb4d0d071f'|'0xa4c13883adf4629f'|'0xa4c138187be8cae9':  # Датчик температуры и влажности TuYa WSD500A
-                self.db.insert('INSERT INTO ' + '`' + device_id +
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                '` (temperature, humidity, battery, linkquality, voltage)' +
                                ' VALUES (%s, %s, %s, %s, %s)',
                                [event.temperature, event.humidity, event.battery, event.linkquality, event.voltage]
                                )
                 pass
             case '0xa4c138f7f972b7b0' | '0xa4c1383b6db1be29':  # Реле
-                self.db.insert('INSERT INTO ' + '`' + device_id +
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                '` (state, linkquality, power_on_behavior, switch_type)' +
                                ' VALUES (%s, %s, %s, %s)',
                                [event.state, event.linkquality,
                                 event.power_on_behavior, event.switch_type]
                                )
             case '0xa4c138110e938e98':  # TuYa CX-7026 LCD датчик температуры и влажности
-                self.db.insert('INSERT INTO ' + '`' + device_id +
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                '` (temperature, humidity, battery, linkquality)' +
                                ' VALUES (%s, %s, %s, %s)',
                                [event.temperature, event.humidity, event.battery, event.linkquality]
@@ -71,28 +75,46 @@ class Subscriber:
                         self.ke.relay_on('1')
                     case '4_single':
                         self.ke.relay_off('1')
-                self.db.insert('INSERT INTO ' + '`' + device_id +
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                '` (action, battery, linkquality)' +
                                ' VALUES (%s, %s, %s)',
                                [event.action, event.battery, event.linkquality]
                                )
 
+    def process_zigbee_device_event(self, friendly_name: str, payload = b""):
+        try:
+            event = Event(**json.loads(payload))
+            print(event)
+            self.log_event(friendly_name, event)
+        except TypeError as error:
+            print(f'ERROR: failed to decode payload')
+            return
+    def process_dashboard_event(self, friendly_name, payload = b""):
+        if friendly_name == 'dashboard_switch1':
+            if payload == '1':
+                self.ke.relay_on('1')
+            else:
+                self.ke.relay_off('1')
+        if friendly_name == 'dashboard_switch2':
+            if payload == '1':
+                self.relay_on('0xa4c1383b6db1be29')
+            else:
+                self.relay_off('0xa4c1383b6db1be29')
+
     def on_message(self, client, userdata, msg):
         topic_parts = msg.topic.split('/')
         if len(topic_parts) != 2 or topic_parts[0] != 'zigbee2mqtt':
             return
-        device_id = topic_parts[1]
+        friendly_name = topic_parts[1]
         moment = datetime.now().strftime("%Y-%d-%m %H:%M:%S")
         payload = msg.payload.decode()
-        # zigbee2mqtt/0x00124b002511e75e {"battery":100,"battery_low":false,"contact":true,"linkquality":51,"tamper":false,"voltage":3000}
-        # zigbee2mqtt/0xa4c138110e938e98 {"battery":100,"humidity":51,"linkquality":69,"temperature":22.9}
-        # zigbee2mqtt/0xa4c138ffef6b9d70 {"action":"1_single","battery":69,"linkquality":127}
-        # zigbee2mqtt/0xa4c138c934616c86 {"battery":100,"humidity":46.24,"linkquality":105,"temperature":23.95,"voltage":3000}
-        # print(f"{moment} {topic_parts[1]} {payload}")
-        print(f"{moment} {device_id} {payload}")
-        event = Event(**json.loads(payload))
-        self.log_event(device_id, event)
-        print(event)
+        print(f"{moment} {friendly_name} {payload}")
+        if friendly_name.startswith('0x'):
+            self.process_zigbee_device_event(friendly_name, payload)
+            return
+        if friendly_name.startswith('dashboard'):
+            self.process_dashboard_event(friendly_name, payload)
+
 
     def loop(self):
         self.client.loop_forever()
