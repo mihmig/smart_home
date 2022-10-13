@@ -89,12 +89,15 @@ class Subscriber:
         except TypeError as error:
             print(f'ERROR: failed to decode payload')
             return
+
     def process_dashboard_event(self, friendly_name, payload = b""):
         if friendly_name == 'dashboard_switch1':
             if payload == '1':
                 self.ke.relay_on('1')
-            else:
+                self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "ON"}')
+            elif payload == '0':
                 self.ke.relay_off('1')
+                self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "OFF"}')
         if friendly_name == 'dashboard_switch2':
             if payload == '1':
                 self.relay_on('0xa4c1383b6db1be29')
@@ -112,8 +115,10 @@ class Subscriber:
         if friendly_name.startswith('0x'):
             self.process_zigbee_device_event(friendly_name, payload)
             return
-        if friendly_name.startswith('dashboard'):
+        elif friendly_name.startswith('dashboard'):
             self.process_dashboard_event(friendly_name, payload)
+        else:
+            print(payload)
 
 
     def loop(self):
