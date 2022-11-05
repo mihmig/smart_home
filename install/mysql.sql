@@ -110,7 +110,21 @@ CREATE TABLE `0xa4c138110e938e98`
     linkquality INT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0xa4c138110e938e98` COMMENT='TuYa WSD500A Температура и влажность';
+ALTER TABLE zigbee.`0xa4c138110e938e98` COMMENT='TuYa CX-7026 Температура и влажность';
+
+-- Датчик освещённости, температуры и влажности (ZSS-ZK-THL)
+CREATE TABLE `0x847127fffefc9500`
+(
+    id INT AUTO_INCREMENT,
+    `datetime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    temperature FLOAT,
+    humidity FLOAT,
+    illuminance_lux INT,
+    battery FLOAT,
+    linkquality INT,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+ALTER TABLE zigbee.`0x847127fffefc9500` COMMENT='Датчик освещённости, температуры и влажности (ZSS-ZK-THL)';
 
 -- Реле 220В
 CREATE TABLE `0xa4c138f7f972b7b0`

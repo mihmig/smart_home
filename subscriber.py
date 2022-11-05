@@ -65,6 +65,14 @@ class Subscriber:
                                ' VALUES (%s, %s, %s, %s)',
                                [event.temperature, event.humidity, event.battery, event.linkquality]
                                )
+            case '0x847127fffefc9500':  # Датчик освещённости, температуры и влажности (ZSS-ZK-THL)
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
+                               '` (temperature, humidity, illuminance_lux, battery, linkquality)' +
+                               ' VALUES (%s, %s, %s, %s, %s)',
+                               [event.temperature, event.humidity, event.illuminance_lux,
+                                event.battery, event.linkquality]
+                               )
+
             case '0xa4c138ffef6b9d70':  # 4-х кнопочный пульт
                 match event.action:
                     case '1_single':
