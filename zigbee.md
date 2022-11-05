@@ -22,6 +22,8 @@ zigbee2mqtt/0x00124b0025130e7d (SONOFF SNZB-04, Холодильник)
 # Датчик температуры/влажности
 zigbee2mqtt/0xa4c138c934616c86
 {"battery":100,"humidity":43.29,"linkquality":83,"temperature":24.69}
-
+TuYa CX-7026 zigbee2mqtt/0xa4c138110e938e98
+T2 Улица zigbee2mqtt/0xa4c138eb4d0d071f
+T4 zigbee2mqtt/0xa4c138187be8cae9
 # Реле 
 https://www.zigbee2mqtt.io/devices/WHD02.html
