@@ -94,7 +94,7 @@ class Subscriber:
             event = Event(**json.loads(payload))
             print(event)
             self.log_event(friendly_name, event)
-        except TypeError as error:
+        except TypeError:
             print(f'ERROR: failed to decode payload')
             return
 
@@ -110,7 +110,7 @@ class Subscriber:
             if payload == '1':
                 self.relay_on('0xa4c138f7f972b7b0')
                 self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "ON"}')
-            else:
+            elif payload == '0':
                 self.relay_off('0xa4c138f7f972b7b0')
                 self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "OFF"}')
 
