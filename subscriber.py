@@ -76,13 +76,13 @@ class Subscriber:
             case '0xa4c138ffef6b9d70':  # 4-х кнопочный пульт
                 match event.action:
                     case '1_single':
-                        self.relay_toggle('0xa4c1383b6db1be29')
+                        self.relay_on('0xa4c1383b6db1be29')
                     case '2_single':
-                        self.relay_toggle('0xa4c138f7f972b7b0')
+                        self.relay_off('0xa4c1383b6db1be29')
                     case '3_single':
-                        self.ke.relay_on('1')
+                        self.relay_on('0xa4c138f7f972b7b0')
                     case '4_single':
-                        self.ke.relay_off('1')
+                        self.relay_off('0xa4c138f7f972b7b0')
                 self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                '` (action, battery, linkquality)' +
                                ' VALUES (%s, %s, %s)',
@@ -101,16 +101,18 @@ class Subscriber:
     def process_dashboard_event(self, friendly_name, payload = b""):
         if friendly_name == 'dashboard_switch1':
             if payload == '1':
-                self.ke.relay_on('1')
+                self.relay_on('0xa4c1383b6db1be29')
                 self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "ON"}')
             elif payload == '0':
-                self.ke.relay_off('1')
+                self.relay_off('0xa4c1383b6db1be29')
                 self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "OFF"}')
         if friendly_name == 'dashboard_switch2':
             if payload == '1':
-                self.relay_on('0xa4c1383b6db1be29')
+                self.relay_on('0xa4c138f7f972b7b0')
+                self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "ON"}')
             else:
-                self.relay_off('0xa4c1383b6db1be29')
+                self.relay_off('0xa4c138f7f972b7b0')
+                self.client.publish(f'zigbee2mqtt/{friendly_name}', '{"state": "OFF"}')
 
     def on_message(self, client, userdata, msg):
         topic_parts = msg.topic.split('/')
