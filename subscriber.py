@@ -40,10 +40,10 @@ class Subscriber:
         match friendly_name:
             case '0x00124b0025120b07' | '0x00124b0025130e7d' | '0x00124b002511e75e':  # Датчики открытия
                 self.db.insert('INSERT INTO ' + '`' + friendly_name +
-                               '` (battery, battery_low, contact, linkquality, tamper, voltage)' +
+                               '` (battery, battery_low, contact, linkquality, voltage)' +
                                ' VALUES (%s, %s, %s, %s, %s, %s)',
                                [event.battery, event.battery_low, event.contact,
-                                event.linkquality, event.tamper, event.voltage]
+                                event.linkquality, event.voltage]
                                )
             case '0xa4c138c934616c86'|'0xa4c138eb4d0d071f'|'0xa4c13883adf4629f'|'0xa4c138187be8cae9':  # Датчик температуры и влажности TuYa WSD500A
                 self.db.insert('INSERT INTO ' + '`' + friendly_name +
