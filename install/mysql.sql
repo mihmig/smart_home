@@ -1,29 +1,27 @@
-create table `device`
+CREATE TABLE `sensor`
 (
-	id int auto_increment,
-	unique_id varchar(255) not null,
-	device_model varchar(255) not null,
-	device_type int null,
-	description varchar(255) null,
-	constraint device
-		primary key (id)
-) ENGINE=MyISAM;
+	id INT AUTO_INCREMENT,
+	unique_id VARCHAR(255) NOT NULL,
+	device_model VARCHAR(255) NOT NULL,
+	device_type INT NULL,
+	`description` VARCHAR(255) NULL,
+	alias VARCHAR(255) NULL,
+	CONSTRAINT device PRIMARY KEY (id)
+) ENGINE=InnoDB;
+CREATE UNIQUE INDEX sensor__unique_id ON sensor (unique_id);
 
-create unique index device__unique_id
-	on device (unique_id);
-#
-# create table `open_close`
-# (
-# 	id int auto_increment,
-# 	device_id int not null,
-# 	datetime timestamp not null,
-# 	state int not null,
-# 	constraint open_close_pk
-# 		primary key (id)
-# ) ENGINE=MyISAM;
-#
-# create index open_close_device_id_uindex
-# 	on open_close (device_id);
+# DROP TABLE `dashboard`;
+
+CREATE TABLE `dashboard`
+(
+	id INT AUTO_INCREMENT,
+	`datetime` TIMESTAMP,
+	`alias` VARCHAR(255) NOT NULL,
+	`json_data` JSON NULL,
+	CONSTRAINT device PRIMARY KEY (id),
+	UNIQUE KEY (`alias`)
+) ENGINE=InnoDB;
+ALTER TABLE `dashboard` COMMENT='Показания и состояния датчиков для панели мониторинга';
 
 -- Датчик открытия
 CREATE TABLE `0x00124b002511e75e`
@@ -38,7 +36,8 @@ CREATE TABLE `0x00124b002511e75e`
     voltage INT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0x00124b002511e75e` COMMENT='SONOFF SNZB-04 Входная дверь';
+ALTER TABLE `0x00124b002511e75e` COMMENT='SONOFF SNZB-04';
+CREATE OR REPLACE INDEX `0x00124b002511e75e_datetime_idx` ON `0x00124b002511e75e`(`datetime` DESC);
 
 -- Датчик открытия
 CREATE TABLE `0x00124b0025120b07`
@@ -53,9 +52,10 @@ CREATE TABLE `0x00124b0025120b07`
     voltage INT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0x00124b0025120b07` COMMENT='SONOFF SNZB-04 Дверь туалета';
+ALTER TABLE zigbee.`0x00124b0025120b07` COMMENT='SONOFF SNZB-04';
+CREATE OR REPLACE INDEX `0x00124b0025120b07_datetime_idx` ON `0x00124b0025120b07`(`datetime` DESC);
 
--- Датчик открытия (Дверь холодильника)
+-- Датчик открытия
 CREATE TABLE `0x00124b0025130e7d`
 (
     id INT AUTO_INCREMENT,
@@ -68,7 +68,8 @@ CREATE TABLE `0x00124b0025130e7d`
     voltage INT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0x00124b0025130e7d` COMMENT='SONOFF SNZB-04 Дверь холодильника';
+ALTER TABLE `0x00124b0025130e7d` COMMENT='SONOFF SNZB-04';
+CREATE OR REPLACE INDEX `0x00124b0025130e7d_datetime_idx` ON `0x00124b0025130e7d`(`datetime` DESC);
 
 -- Датчик температуры и влажности (TuYa WSD500A)
 CREATE TABLE `0xa4c138c934616c86`
@@ -82,7 +83,8 @@ CREATE TABLE `0xa4c138c934616c86`
     humidity FLOAT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0xa4c138c934616c86` COMMENT='TuYa WSD500A Температура и влажность в спальне';
+ALTER TABLE `0xa4c138c934616c86` COMMENT='TuYa WSD500A Температура и влажность T1';
+CREATE OR REPLACE INDEX `0xa4c138c934616c86_datetime_idx` ON `0xa4c138c934616c86`(`datetime` DESC);
 
 -- Датчик температуры и влажности (TuYa WSD500A)
 CREATE TABLE `0xa4c138187be8cae9`
@@ -96,8 +98,8 @@ CREATE TABLE `0xa4c138187be8cae9`
     humidity FLOAT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-
-ALTER TABLE zigbee.`0xa4c138187be8cae9` COMMENT='TuYa WSD500A Температура и влажность T4';
+ALTER TABLE `0xa4c138187be8cae9` COMMENT='TuYa WSD500A Температура и влажность T4';
+CREATE OR REPLACE INDEX `0xa4c138187be8cae9_datetime_idx` ON `0xa4c138187be8cae9`(`datetime` DESC);
 
 -- Датчик температуры и влажности LCD (TuYa CX-7026)
 CREATE TABLE `0xa4c138110e938e98`
@@ -110,7 +112,8 @@ CREATE TABLE `0xa4c138110e938e98`
     linkquality INT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0xa4c138110e938e98` COMMENT='TuYa CX-7026 Температура и влажность';
+ALTER TABLE `0xa4c138110e938e98` COMMENT='TuYa CX-7026 Температура и влажность';
+CREATE OR REPLACE INDEX `0xa4c138110e938e98_datetime_idx` ON `0xa4c138110e938e98`(`datetime` DESC);
 
 -- Датчик освещённости, температуры и влажности (ZSS-ZK-THL)
 CREATE TABLE `0x847127fffefc9500`
@@ -124,7 +127,8 @@ CREATE TABLE `0x847127fffefc9500`
     linkquality INT,
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0x847127fffefc9500` COMMENT='Датчик освещённости, температуры и влажности (ZSS-ZK-THL)';
+ALTER TABLE `0x847127fffefc9500` COMMENT='Датчик освещённости, температуры и влажности (ZSS-ZK-THL)';
+CREATE OR REPLACE INDEX `0x847127fffefc9500_datetime_idx` ON `0x847127fffefc9500`(`datetime` DESC);
 
 -- Реле 220В
 CREATE TABLE `0xa4c138f7f972b7b0`
@@ -137,7 +141,8 @@ CREATE TABLE `0xa4c138f7f972b7b0`
     switch_type VARCHAR(20),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0xa4c138f7f972b7b0` COMMENT='WHD02 Реле 220В';
+ALTER TABLE `0xa4c138f7f972b7b0` COMMENT='WHD02 Реле 220В';
+CREATE OR REPLACE INDEX `0xa4c138f7f972b7b0_datetime_idx` ON `0xa4c138f7f972b7b0`(`datetime` DESC);
 
 -- Реле 220В
 CREATE TABLE `0xa4c1383b6db1be29`
@@ -150,7 +155,8 @@ CREATE TABLE `0xa4c1383b6db1be29`
     switch_type VARCHAR(20),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0xa4c1383b6db1be29` COMMENT='WHD02 Реле 220В';
+ALTER TABLE `0xa4c1383b6db1be29` COMMENT='WHD02 Реле 220В';
+CREATE OR REPLACE INDEX `0xa4c1383b6db1be29_datetime_idx` ON `0xa4c1383b6db1be29`(`datetime` DESC);
 
 -- SS6400ZB-V2 4-х кнопочный пульт
 CREATE TABLE `0xa4c138ffef6b9d70`
@@ -162,8 +168,8 @@ CREATE TABLE `0xa4c138ffef6b9d70`
     action VARCHAR(20),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE zigbee.`0xa4c138ffef6b9d70` COMMENT='SS6400ZB-V2 4-х кнопочный пульт';
-
+ALTER TABLE `0xa4c138ffef6b9d70` COMMENT='SS6400ZB-V2 4-х кнопочный пульт';
+CREATE OR REPLACE INDEX `0xa4c138ffef6b9d70_datetime_idx` ON `0xa4c138ffef6b9d70`(`datetime` DESC);
 
 
 GRANT ALL PRIVILEGES ON zigbee.* TO 'zigbee'@'%';
