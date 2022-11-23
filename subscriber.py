@@ -55,7 +55,7 @@ class Subscriber:
             case 1:  # Датчики открытия
                 self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                '` (battery, battery_low, contact, linkquality, voltage)' +
-                               ' VALUES (%s, %s, %s, %s, %s, %s)',
+                               ' VALUES (%s, %s, %s, %s, %s)',
                                [event.battery, event.battery_low, event.contact,
                                 event.linkquality, event.voltage]
                                )
@@ -65,29 +65,6 @@ class Subscriber:
                                '` (temperature, humidity, battery, linkquality, voltage)' +
                                ' VALUES (%s, %s, %s, %s, %s)',
                                [event.temperature, event.humidity, event.battery, event.linkquality, event.voltage]
-                               )
-                self.update_dashboard_value(alias, event.json())
-            case 4:  # Реле
-                self.db.insert('INSERT INTO ' + '`' + friendly_name +
-                               '` (state, linkquality, power_on_behavior, switch_type)' +
-                               ' VALUES (%s, %s, %s, %s)',
-                               [event.state, event.linkquality,
-                                event.power_on_behavior, event.switch_type]
-                               )
-                self.update_dashboard_value(alias, event.json())
-            case 6:  # TuYa CX-7026 LCD датчик температуры и влажности
-                self.db.insert('INSERT INTO ' + '`' + friendly_name +
-                               '` (temperature, humidity, battery, linkquality)' +
-                               ' VALUES (%s, %s, %s, %s)',
-                               [event.temperature, event.humidity, event.battery, event.linkquality]
-                               )
-                self.update_dashboard_value(alias, event.json())
-            case 5:  # Датчик освещённости, температуры и влажности (ZSS-ZK-THL)
-                self.db.insert('INSERT INTO ' + '`' + friendly_name +
-                               '` (temperature, humidity, illuminance_lux, battery, linkquality)' +
-                               ' VALUES (%s, %s, %s, %s, %s)',
-                               [event.temperature, event.humidity, event.illuminance_lux,
-                                event.battery, event.linkquality]
                                )
                 self.update_dashboard_value(alias, event.json())
             case 3:  # 4-х кнопочный пульт
@@ -110,15 +87,37 @@ class Subscriber:
                                [event.action, event.battery, event.linkquality]
                                )
                 self.update_dashboard_value(alias, event.json())
+            case 4:  # Реле
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
+                               '` (state, linkquality, power_on_behavior, switch_type)' +
+                               ' VALUES (%s, %s, %s, %s)',
+                               [event.state, event.linkquality,
+                                event.power_on_behavior, event.switch_type]
+                               )
+                self.update_dashboard_value(alias, event.json())
+            case 5:  # Датчик освещённости, температуры и влажности (ZSS-ZK-THL)
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
+                               '` (temperature, humidity, illuminance_lux, battery, linkquality)' +
+                               ' VALUES (%s, %s, %s, %s, %s)',
+                               [event.temperature, event.humidity, event.illuminance_lux,
+                                event.battery, event.linkquality]
+                               )
+                self.update_dashboard_value(alias, event.json())
+            case 6:  # TuYa CX-7026 LCD датчик температуры и влажности
+                self.db.insert('INSERT INTO ' + '`' + friendly_name +
+                               '` (temperature, humidity, battery, linkquality)' +
+                               ' VALUES (%s, %s, %s, %s)',
+                               [event.temperature, event.humidity, event.battery, event.linkquality]
+                               )
+                self.update_dashboard_value(alias, event.json())
 
     def process_zigbee_device_event(self, friendly_name: str, payload=b""):
         try:
             event = Event(**json.loads(payload))
-            print('---', event)
-            self.log_event(friendly_name, event)
-        except TypeError:
-            print(f'ERROR: failed to decode payload')
+        except TypeError as e:
+            print(f'ERROR: failed to decode payload: {event} : {e}')
             return
+        self.log_event(friendly_name, event)
 
     def process_dashboard_event(self, friendly_name, payload=b""):
         if friendly_name == 'init':  # Подключилось приложение, отправляем в MQTT последние данные
@@ -157,7 +156,7 @@ class Subscriber:
                 case 3:  # 4-х кнопочный пульт
                     # sensor['battery'], sensor['linkquality']
                     self.update_dashboard_value(sensor['alias'], json.dumps(line, default=str))
-                case 4: # Реле
+                case 4:  # Реле
                     # sensor['state']
                     self.update_dashboard_value(sensor['alias'], json.dumps(line, default=str))
                 case 5:  # Датчик освещённости, температуры и влажности (ZSS-ZK-THL)
