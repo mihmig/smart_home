@@ -1,13 +1,13 @@
 -- Статистика по открыванию двери (туалета)
-SELECT left(datetime,10),count(*) from `0x00124b0025120b07`
+SELECT left(datetime,10) AS `DATE`, count(*) AS `COUNT` from `0x00124b0025120b07`
 WHERE contact=1
-AND datetime>'2022-11-01'
+AND datetime>DATE_SUB(NOW(), INTERVAL 10 DAY)
 GROUP BY left(datetime,10);
 
 -- Статистика по открыванию двери (холодильника)
-SELECT left(datetime,10),count(*) from `0x00124b0025130e7d`
+SELECT left(datetime,10) AS `DATE`, count(*) AS `COUNT` from `0x00124b0025130e7d`
 WHERE contact=1
-AND datetime>'2022-11-03'
+AND datetime>DATE_SUB(NOW(), INTERVAL 10 DAY)
 GROUP BY left(datetime,10);
 
 EXPLAIN

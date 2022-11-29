@@ -12,7 +12,7 @@
 ### Используемые технологии ###
 * Python 3.10
 * Zigbee2mqtt
-* MQTT-серве mosquitto
+* MQTT-сервер mosquitto
 * MariaDb (MysqlDb)
 
 ### Архитектура/Устройства ###
