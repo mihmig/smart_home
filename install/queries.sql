@@ -10,6 +10,12 @@ WHERE contact=1
 AND datetime>DATE_SUB(NOW(), INTERVAL 10 DAY)
 GROUP BY left(datetime,10);
 
+-- Статистика по открыванию двери в квартиру
+SELECT left(datetime,10) AS `DATE`, count(*) AS `COUNT` from `0x00124b002511e75e`
+WHERE contact=1
+AND datetime>DATE_SUB(NOW(), INTERVAL 10 DAY)
+GROUP BY left(datetime,10);
+
 EXPLAIN
 SELECT * FROM `0x00124b0025130e7d`
 ORDER BY `datetime` DESC
