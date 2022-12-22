@@ -22,7 +22,7 @@ class Subscriber:
         self.client.connect(config['broker'], config['port'])
         self.connected = False
         self.client.on_message = self.on_message
-        self.client.subscribe('#')
+
         self.db = db
         self.ke = ke
         self.sensors = sensors
@@ -30,6 +30,7 @@ class Subscriber:
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
             print("Connected to MQTT Broker!")
+            self.client.subscribe('#')
             self.connected = True
         else:
             print("Failed to connect, return code %d\n", rc)
@@ -173,6 +174,7 @@ class Subscriber:
         self.client.publish(f'{DASHBOARD_TOPIC}/{alias}', json_data)
 
     def on_message(self, client, userdata, msg):
+        print(msg.topic)
         topic_parts = msg.topic.split('/')
         if len(topic_parts) != 2 or (topic_parts[0] not in OUR_TOPIC_LIST):
             return
