@@ -24,3 +24,15 @@ LIMIT 1;
 UPDATE dashboard SET datetime=CURRENT_TIMESTAMP, json_data = '{}'
 WHERE alias = 'pult1'
 
+-- Записи, идущие чаще, чем раз в 60 секунд
+SELECT a.id, a.datetime, b.id, b.datetime, b.temperature FROM `0xa4c138c934616c86` a
+JOIN `0xa4c138c934616c86` b ON a.id = b.id + 1 AND TIMESTAMPDIFF(SECOND, b.datetime, a.datetime) < 60
+LIMIT 20;
+
+-- Удаляем слишком часто идущие записи (оставляем не чаще, чем раз в минуту60 секунд)
+DELETE FROM `0xa4c138c934616c86` WHERE id in (SELECT b.id
+                                              FROM `0xa4c138c934616c86` a
+                                                       JOIN `0xa4c138c934616c86` b
+                                                            ON a.id = b.id + 1 AND TIMESTAMPDIFF(SECOND, b.datetime, a.datetime) < 60
+                                              )
+LIMIT 10000;

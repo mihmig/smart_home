@@ -6,6 +6,7 @@ CREATE TABLE `sensor`
 	device_type INT NULL,
 	`description` VARCHAR(255) NULL,
 	alias VARCHAR(255) NULL,
+	received_events INT NULL DEFAULT 0 COMMENT 'Количество событий, поступивших от датчика',
 	CONSTRAINT device PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 CREATE UNIQUE INDEX sensor__unique_id ON sensor (unique_id);

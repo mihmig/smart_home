@@ -12,6 +12,7 @@ import json
 ZIGBEE_TOPIC = 'zigbee2mqtt'
 DASHBOARD_TOPIC = 'dashboard'
 OUR_TOPIC_LIST = [ZIGBEE_TOPIC, DASHBOARD_TOPIC]
+MINIMAL_INTERVAL = 60  # Минимальный период регистрации событий от датчиков температуры
 
 
 class Subscriber:
@@ -26,14 +27,15 @@ class Subscriber:
         self.db = db
         self.ke = ke
         self.sensors = sensors
+        self.last_events = {}  # Состояние датчиков температуры и влажности
 
-    def on_connect(self, client, userdata, flags, rc):
-        if rc == 0:
+    def on_connect(self, client, userdata, flags, return_code):
+        if return_code == 0:
             print("Connected to MQTT Broker!")
             self.client.subscribe('#')
             self.connected = True
         else:
-            print("Failed to connect, return code %d\n", rc)
+            print(f"Failed to connect, return code = {return_code}")
             self.connected = False
 
     def relay_toggle(self, friendly_name: str):
@@ -46,6 +48,8 @@ class Subscriber:
         self.client.publish(f'zigbee2mqtt/{friendly_name}/set', '{"state": "OFF"}')
 
     def log_event(self, friendly_name: str, event: Event):
+        now = datetime.now()
+        self.db.execute('UPDATE sensor SET received_events = received_events + 1 WHERE device_id = %s', [friendly_name])
         try:
             device_type = self.sensors[friendly_name]['device_type']
             alias = self.sensors[friendly_name]['alias']
@@ -62,11 +66,25 @@ class Subscriber:
                                )
                 self.update_dashboard_value(alias, event.json())
             case 2:  # Датчик температуры и влажности TuYa WSD500A
-                self.db.insert('INSERT INTO ' + '`' + friendly_name +
-                               '` (temperature, humidity, battery, linkquality, voltage)' +
-                               ' VALUES (%s, %s, %s, %s, %s)',
-                               [event.temperature, event.humidity, event.battery, event.linkquality, event.voltage]
-                               )
+                if friendly_name in self.last_events:
+                    last_event = self.last_events[friendly_name]
+                else:
+                    last_event = event
+                    self.last_events[friendly_name] = last_event
+                if last_event.last_record_id is None or (now - last_event.datetime).total_seconds() > MINIMAL_INTERVAL:
+                    last_record_id = self.db.insert('INSERT INTO ' + '`' + friendly_name +
+                                                    '` (temperature, humidity, battery, linkquality, voltage)' +
+                                                    ' VALUES (%s, %s, %s, %s, %s)',
+                                                    [event.temperature, event.humidity, event.battery,
+                                                     event.linkquality, event.voltage]
+                                                    )
+                    last_event.last_record_id = last_record_id
+                else:
+                    self.db.execute('UPDATE `' + friendly_name + '` SET temperature = %s, humidity = %s, '
+                                                                 'battery = %s, linkquality = %s, voltage  = %s '
+                                                                 'WHERE id = %s',
+                                    [event.temperature, event.humidity, event.battery,
+                                     event.linkquality, event.voltage, last_event.last_record_id])
                 self.update_dashboard_value(alias, event.json())
             case 3:  # 4-х кнопочный пульт
                 match event.action:
@@ -115,6 +133,7 @@ class Subscriber:
     def process_zigbee_device_event(self, friendly_name: str, payload=b""):
         try:
             event = Event(**json.loads(payload))
+            event.datetime = datetime.now()
         except TypeError as e:
             print(f'ERROR: failed to decode payload: {event} : {e}')
             return

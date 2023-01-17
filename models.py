@@ -1,6 +1,8 @@
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel
+from datetime import datetime
 from typing import Optional
 import json
+
 
 class Event(BaseModel):
     battery: Optional[float]
@@ -15,6 +17,8 @@ class Event(BaseModel):
     state: Optional[str]
     power_on_behavior: Optional[str]
     switch_type: Optional[str]
+    datetime: Optional[datetime]
+    last_record_id: Optional[int]
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__,
