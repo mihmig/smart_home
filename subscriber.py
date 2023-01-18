@@ -72,14 +72,13 @@ class Subscriber:
                     last_event = event
                     self.last_events[friendly_name] = last_event
                 if last_event.last_record_id is None or (now - last_event.datetime).total_seconds() > MINIMAL_INTERVAL:
-                    print(f'insert: {(now - last_event.datetime).total_seconds()}')
                     last_record_id = self.db.insert('INSERT INTO ' + '`' + friendly_name +
                                                     '` (temperature, humidity, battery, linkquality, voltage)' +
                                                     ' VALUES (%s, %s, %s, %s, %s)',
                                                     [event.temperature, event.humidity, event.battery,
                                                      event.linkquality, event.voltage]
                                                     )
-                    print(f'last_record_id: {last_record_id}')
+                    last_event.datetime = now
                     last_event.last_record_id = last_record_id
                 else:
                     print('update...')
