@@ -1,7 +1,7 @@
 -- Статистика по открыванию двери (туалета)
 SELECT left(datetime,10) AS `DATE`, count(*) AS `COUNT` from `0x00124b0025120b07`
 WHERE contact=1
-AND datetime>DATE_SUB(NOW(), INTERVAL 10 DAY)
+AND datetime>DATE_SUB(NOW(), INTERVAL 20 DAY)
 GROUP BY left(datetime,10);
 
 -- Статистика по открыванию двери (холодильника)
@@ -22,7 +22,7 @@ ORDER BY `datetime` DESC
 LIMIT 1;
 
 UPDATE dashboard SET datetime=CURRENT_TIMESTAMP, json_data = '{}'
-WHERE alias = 'pult1'
+WHERE alias = 'pult1';
 
 -- Записи, идущие чаще, чем раз в 60 секунд
 SELECT a.id, a.datetime, b.id, b.datetime, b.temperature FROM `0xa4c138c934616c86` a
@@ -34,5 +34,5 @@ DELETE FROM `0xa4c138c934616c86` WHERE id in (SELECT b.id
                                               FROM `0xa4c138c934616c86` a
                                                        JOIN `0xa4c138c934616c86` b
                                                             ON a.id = b.id + 1 AND TIMESTAMPDIFF(SECOND, b.datetime, a.datetime) < 60
-                                              )
+                                              WHERE a.id > 12000)
 LIMIT 10000;

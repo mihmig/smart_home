@@ -1,7 +1,7 @@
 # Модуль взаимодействия с базой данных MySql (MariaDB)
 from typing import List, Dict
 import pymysql
-from pymysql.cursors import DictCursor, SSCursor
+from pymysql.cursors import DictCursor
 
 
 class Db:
@@ -13,7 +13,7 @@ class Db:
             password=config['password'],
             host=config['host'],
             port=config['port'],
-            charset='utf8mb4' #,cursorclass=DictCursor
+            charset='utf8mb4'
         )
         self.conn.autocommit = True
 
@@ -71,7 +71,7 @@ class Db:
         return result
 
     # Вставка, при использовании конструкции RETURNING - возвращает сгенерированное поле
-    def insert(self, query: str, params: list = None) -> str|int:
+    def insert(self, query: str, params: list = None) -> int:
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         insert_id = cursor.connection.insert_id()

@@ -132,7 +132,7 @@ ALTER TABLE `0x847127fffefc9500` COMMENT='Датчик освещённости,
 CREATE OR REPLACE INDEX `0x847127fffefc9500_datetime_idx` ON `0x847127fffefc9500`(`datetime` DESC);
 
 -- Реле 220В
-CREATE TABLE `0xa4c138f7f972b7b0`
+CREATE TABLE `0xa4c138b3e4db875f`
 (
     id INT AUTO_INCREMENT,
     `datetime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -142,8 +142,8 @@ CREATE TABLE `0xa4c138f7f972b7b0`
     switch_type VARCHAR(20),
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
-ALTER TABLE `0xa4c138f7f972b7b0` COMMENT='WHD02 Реле 220В';
-CREATE OR REPLACE INDEX `0xa4c138f7f972b7b0_datetime_idx` ON `0xa4c138f7f972b7b0`(`datetime` DESC);
+ALTER TABLE `0xa4c138b3e4db875f` COMMENT='WHD02 Реле 220В';
+CREATE OR REPLACE INDEX `0xa4c138b3e4db875f_datetime_idx` ON `0xa4c138b3e4db875f`(`datetime` DESC);
 
 -- Реле 220В
 CREATE TABLE `0xa4c1383b6db1be29`
