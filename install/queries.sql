@@ -30,9 +30,15 @@ JOIN `0xa4c138c934616c86` b ON a.id = b.id + 1 AND TIMESTAMPDIFF(SECOND, b.datet
 LIMIT 20;
 
 -- Удаляем слишком часто идущие записи (оставляем не чаще, чем раз в минуту60 секунд)
-DELETE FROM `0xa4c138c934616c86` WHERE id in (SELECT b.id
-                                              FROM `0xa4c138c934616c86` a
-                                                       JOIN `0xa4c138c934616c86` b
+DELETE FROM `0xa4c138eb4d0d071f` WHERE id in (SELECT b.id
+                                              FROM `0xa4c138eb4d0d071f` a
+                                                       JOIN `0xa4c138eb4d0d071f` b
                                                             ON a.id = b.id + 1 AND TIMESTAMPDIFF(SECOND, b.datetime, a.datetime) < 60
-                                              WHERE a.id > 12000)
-LIMIT 10000;
+
+                                              );
+
+
+-- LIMIT 20000;
+-- Обновляем поле перед удалением лишних записей
+UPDATE sensor SET received_events = (SELECT COUNT(1) from `0xa4c138b3e4db875f`)
+WHERE device_id = '0xa4c138b3e4db875f'

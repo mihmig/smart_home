@@ -6,7 +6,6 @@ from pymysql.cursors import DictCursor
 
 class Db:
     def __init__(self, config):
-
         self.conn = pymysql.connect(
             db=config['dbname'],
             user=config['user'],
@@ -19,6 +18,7 @@ class Db:
 
     # Получение одного значения
     def get_value(self, query: str, params: list = None) -> str | None:
+        self.conn.ping(True)
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         row = cursor.fetchone()
@@ -28,6 +28,7 @@ class Db:
 
     # Получение одного кортежа
     def get_line(self, query: str, params: list = None) -> Dict:
+        self.conn.ping(True)
         cursor = self.conn.cursor(cursor=DictCursor)
         cursor.execute(query, params)
         row = cursor.fetchone()
@@ -36,6 +37,7 @@ class Db:
 
     # Получение одного столбца
     def get_row(self, query: str, params: list = None) -> List:
+        self.conn.ping(True)
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         rows = cursor.fetchall()
@@ -47,6 +49,7 @@ class Db:
 
     # Получение словаря (набор id->value)
     def get_dict(self, query: str, params: list = None):
+        self.conn.ping(True)
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         result = {}
@@ -58,12 +61,14 @@ class Db:
 
     # Получение множества строк (именованные кортежи)
     def get_data(self, query: str, params: list = None):
+        self.conn.ping(True)
         cursor = self.conn.cursor(cursor=DictCursor)
         cursor.execute(query, params)
         return cursor.fetchall()
 
     # Выполнение произвольного запроса к БД
     def execute(self, query: str, params: list = None) -> object:
+        self.conn.ping(True)
         cursor = self.conn.cursor()
         result = cursor.execute(query, params)
         cursor.close()
@@ -72,6 +77,7 @@ class Db:
 
     # Вставка, при использовании конструкции RETURNING - возвращает сгенерированное поле
     def insert(self, query: str, params: list = None) -> int:
+        self.conn.ping(True)
         cursor = self.conn.cursor()
         cursor.execute(query, params)
         insert_id = cursor.connection.insert_id()

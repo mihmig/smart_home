@@ -19,6 +19,10 @@ class Event(BaseModel):
     switch_type: Optional[str]
     datetime: Optional[datetime]
     last_record_id: Optional[int]
+    current: Optional[float]
+    energy: Optional[float]
+    power: Optional[int]
+    voltage: Optional[int]
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__,

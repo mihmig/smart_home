@@ -9,9 +9,9 @@ from models import Event
 import json
 
 # Топики, с которыми работает наш алгоритм
-ZIGBEE_TOPIC = 'zigbee2mqtt'
+ZIGBEE2MQTT_TOPIC = 'zigbee2mqtt'
 DASHBOARD_TOPIC = 'dashboard'
-OUR_TOPIC_LIST = [ZIGBEE_TOPIC, DASHBOARD_TOPIC]
+OUR_TOPIC_LIST = [ZIGBEE2MQTT_TOPIC, DASHBOARD_TOPIC]
 MINIMAL_INTERVAL = 60  # Минимальный период регистрации событий от датчиков температуры
 
 
@@ -39,13 +39,13 @@ class Subscriber:
             self.connected = False
 
     def relay_toggle(self, friendly_name: str):
-        self.client.publish(f'zigbee2mqtt/{friendly_name}/set', '{"state": "TOGGLE"}')
+        self.client.publish(f'{ZIGBEE2MQTT_TOPIC}/{friendly_name}/set', '{"state": "TOGGLE"}')
 
     def relay_on(self, friendly_name: str):
-        self.client.publish(f'zigbee2mqtt/{friendly_name}/set', '{"state": "ON"}')
+        self.client.publish(f'{ZIGBEE2MQTT_TOPIC}/{friendly_name}/set', '{"state": "ON"}')
 
     def relay_off(self, friendly_name: str):
-        self.client.publish(f'zigbee2mqtt/{friendly_name}/set', '{"state": "OFF"}')
+        self.client.publish(f'{ZIGBEE2MQTT_TOPIC}/{friendly_name}/set', '{"state": "OFF"}')
 
     def log_event(self, friendly_name: str, event: Event):
         now = datetime.now()
@@ -137,7 +137,7 @@ class Subscriber:
             event = Event(**json.loads(payload))
             event.datetime = datetime.now()
         except TypeError as e:
-            print(f'ERROR: failed to decode payload: {event} : {e}')
+            print(f'ERROR: failed to decode payload: {payload} : {e}')
             return
         self.log_event(friendly_name, event)
 
@@ -204,7 +204,7 @@ class Subscriber:
         moment = datetime.now().strftime("%Y-%d-%m %H:%M:%S")
         payload = msg.payload.decode()
         print(f"{moment} {friendly_name} {payload}")
-        if topic == ZIGBEE_TOPIC:
+        if topic == ZIGBEE2MQTT_TOPIC:
             self.process_zigbee_device_event(friendly_name, payload)
             return
         elif topic == DASHBOARD_TOPIC:

@@ -1,3 +1,8 @@
+CREATE DATABASE zigbee CHARACTER SET utf8 COLLATE utf8_general_ci;
+CREATE USER 'zigbee'@'%' IDENTIFIED BY 'zigbee';
+GRANT ALL PRIVILEGES ON zigbee.* TO 'zigbee'@'%';
+FLUSH PRIVILEGES;
+
 CREATE TABLE `sensor`
 (
 	id INT AUTO_INCREMENT,
@@ -172,6 +177,17 @@ CREATE TABLE `0xa4c138ffef6b9d70`
 ALTER TABLE `0xa4c138ffef6b9d70` COMMENT='SS6400ZB-V2 4-х кнопочный пульт';
 CREATE OR REPLACE INDEX `0xa4c138ffef6b9d70_datetime_idx` ON `0xa4c138ffef6b9d70`(`datetime` DESC);
 
+-- Состояния устройств и параметров
+CREATE TABLE `state`
+(
+    id INT AUTO_INCREMENT,
+    `datetime` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    friendly_name VARCHAR(32) NOT NULL,
+    state VARCHAR(32),
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+ALTER TABLE `state` COMMENT='Состояния устройств и параметров';
+CREATE OR REPLACE INDEX `state_friendly_name_idx` ON `state`(`friendly_name`);
 
 GRANT ALL PRIVILEGES ON zigbee.* TO 'zigbee'@'%';
 FLUSH PRIVILEGES;
