@@ -29,7 +29,8 @@
 * Android - можно ли детектировать включение/выключение экрана, текущую программу
 
 ### Установка ###
-
+pip install --upgrade pip
+pip install -r requirements.txt
 ### Ссылки ###
 * https://github.com/smartboxchannel/EFEKTA-eTH102z
 
