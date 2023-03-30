@@ -115,16 +115,22 @@ class Pochinok:
                 self.update_state(friendly_name[0:-4], payload)
 
     # Получает значение в из таблицы state, если нет - создаёт запись в таблице
-    def get_state(self, friendly_name: str) -> str:
-        state = self.db.get_value("SELECT `state` FROM state WHERE friendly_name = %s", [friendly_name])
+    def get_state(self, friendly_name: str) -> Dict:
+        state = self.db.get_line("SELECT `state`,`datetime` FROM state WHERE friendly_name = %s", [friendly_name])
         if state is None:
             self.db.execute("INSERT INTO state (friendly_name) VALUES (%s)", [friendly_name])
-            return ""
+            return {}
         return state
 
     # Обновляет значение в таблице state и публикует в MQTT-топик
     def update_state(self, friendly_name: str, state=""):
         prev_state = self.get_state(friendly_name)
+        # От термодатчиков и реле иногда поступает несколько одинаковых сообщений подряд за пару секунд
+        if prev_state.get('state') == state and \
+            prev_state.get('datetime') is not None and \
+                (datetime.now() - prev_state.get('datetime')).total_seconds() > 3:
+            return
+
         self.db.execute('UPDATE state SET datetime=CURRENT_TIMESTAMP, state = %s '
                         'WHERE friendly_name = %s', [state, friendly_name])
         self.client.publish(f'{DASHBOARD_TOPIC}/{friendly_name}', state)
