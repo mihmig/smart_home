@@ -27,7 +27,7 @@ class Db:
         return row[0]
 
     # Получение одного кортежа
-    def get_line(self, query: str, params: list = None) -> Dict:
+    def get_line(self, query: str, params: list = None) -> dict | None:
         self.conn.ping(True)
         cursor = self.conn.cursor(cursor=DictCursor)
         cursor.execute(query, params)
@@ -36,7 +36,7 @@ class Db:
         return row
 
     # Получение одного столбца
-    def get_row(self, query: str, params: list = None) -> List:
+    def get_row(self, query: str, params: list = None) -> list:
         self.conn.ping(True)
         cursor = self.conn.cursor()
         cursor.execute(query, params)
@@ -48,7 +48,7 @@ class Db:
         return result
 
     # Получение словаря (набор id->value)
-    def get_dict(self, query: str, params: list = None):
+    def get_dict(self, query: str, params: list = None) -> dict:
         self.conn.ping(True)
         cursor = self.conn.cursor()
         cursor.execute(query, params)

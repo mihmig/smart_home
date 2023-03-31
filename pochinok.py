@@ -69,10 +69,12 @@ class Pochinok:
                     self.update_state(f'{friendly_name}_power', event.power)
                 if event.voltage is not None:
                     self.update_state(f'{friendly_name}_voltage', event.voltage)
-            case 'T1' | 'T2' | 'T3' | 'T4':
+            case 'T1' | 'T2' | 'T3' | 'T4' | 'E-ink':
                 self.update_state(f'{friendly_name}_temperature', event.temperature)
                 self.update_state(f'{friendly_name}_humidity', event.humidity)
                 self.update_state(f'{friendly_name}_battery', event.battery)
+                if event.illuminance_lux is not None:
+                    self.update_state(f'{friendly_name}_illuminance_lux', event.illuminance_lux)
             case 'pult':
                 match event.action:
                     case '1_single':
@@ -108,11 +110,11 @@ class Pochinok:
         match friendly_name:
             case 'R1' | 'R2' | 'R3' | 'R4' | 'RM1':  # Управление реле
                 if payload == '1':
-                    self.relay_on(friendly_name[0:-4])
+                    self.relay_on(friendly_name)
                 elif payload == '0':
-                    self.relay_off(friendly_name[0:-4])
+                    self.relay_off(friendly_name)
             case 'temp1_set' | 'temp2_set':
-                self.update_state(friendly_name[0:-4], payload)
+                self.update_state(friendly_name, payload)
 
     # Получает значение в из таблицы state, если нет - создаёт запись в таблице
     def get_state(self, friendly_name: str) -> Dict:
