@@ -20,16 +20,14 @@ MINIMAL_INTERVAL = 60  # Минимальный период регистрац�
 
 
 class Pochinok:
-    def __init__(self, config, db: Db):
-        self.client = mqtt_client.Client(config['client_id'])
+    def __init__(self, config, db_: Db):
+        self.client = mqtt_client.Client(config['client_id'], clean_session=False)
         self.client.username_pw_set(config['username'], config['password'])
-        self.client._clean_session
         self.client.on_connect = self.on_connect
         self.client.connect(config['broker'], config['port'])
         self.connected = False
         self.client.on_message = self.on_message
-
-        self.db = db
+        self.db = db_
         self.last_events = {}  # Состояние датчиков температуры и влажности
 
     def on_connect(self, client, userdata, flags, return_code):
@@ -93,6 +91,22 @@ class Pochinok:
                         self.relay_on('RM1')
                     case '4_double':
                         self.relay_off('RM1')
+            case 'S1' | 'S2' | 'S3' | 'L1' | 'L2':
+                prev_state = self.get_state(f'{friendly_name}', '0')
+                state = '1' if event.contact else '0'
+                self.update_state(f'{friendly_name}', state)
+                if state == '1' and prev_state == '0':  # Закрыли дверь
+                    daily_count = int(self.get_state(f'{friendly_name}_daily', '0'))
+                    daily_count = daily_count + 1
+                    self.update_state(f'{friendly_name}_daily', daily_count)
+                    self.client.publish(f'{DASHBOARD_TOPIC}/{friendly_name}_daily', daily_count)
+
+                    total_count = int(self.get_state(f'{friendly_name}_total', '0'))
+                    total_count = total_count + 1
+                    self.update_state(f'{friendly_name}_total', total_count)
+                    self.client.publish(f'{DASHBOARD_TOPIC}/{friendly_name}_total', total_count)
+
+                self.client.publish(f'{DASHBOARD_TOPIC}/{friendly_name}', state)
 
     def process_dashboard_event(self, friendly_name, payload=b""):
         # Логика обработки показаний датчиков
@@ -115,9 +129,20 @@ class Pochinok:
                     self.relay_off(friendly_name)
             case 'temp1_set' | 'temp2_set':
                 self.update_state(friendly_name, payload)
+            case 'sveta_alko_reset':
+                self.update_state('sveta_alko', '0')
 
-    # Получает значение в из таблицы state, если нет - создаёт запись в таблице
-    def get_state(self, friendly_name: str) -> Dict:
+    # Получает значение параметра state, если нет - создаёт запись в таблице со значением по-умолчанию
+    def get_state(self, friendly_name: str, default_value: str = '') -> str:
+        state = self.db.get_value("SELECT `state` FROM state WHERE friendly_name = %s", [friendly_name])
+        if state is None:
+            self.db.execute("INSERT INTO state (friendly_name, `state`) VALUES (%s, %s)", [friendly_name, default_value])
+            return default_value
+        return state
+
+    # Получает значение и время последнего изменения из таблицы state,
+    # если нет - создаёт запись в таблице
+    def get_state_with_datetime(self, friendly_name: str) -> Dict:
         state = self.db.get_line("SELECT `state`,`datetime` FROM state WHERE friendly_name = %s", [friendly_name])
         if state is None:
             self.db.execute("INSERT INTO state (friendly_name) VALUES (%s)", [friendly_name])
@@ -125,8 +150,8 @@ class Pochinok:
         return state
 
     # Обновляет значение в таблице state и публикует в MQTT-топик
-    def update_state(self, friendly_name: str, state=""):
-        prev_state = self.get_state(friendly_name)
+    def update_state(self, friendly_name: str, state: str = ''):
+        prev_state = self.get_state_with_datetime(friendly_name)
         # От термодатчиков и реле иногда поступает несколько одинаковых сообщений подряд за пару секунд
         if prev_state.get('state') == state and \
             prev_state.get('datetime') is not None and \
@@ -139,7 +164,6 @@ class Pochinok:
         self.client.publish(f'{DASHBOARD_TOPIC}/{friendly_name}/datetime', datetime.now().strftime("%Y-%d-%m %H:%M:%S"))
 
     def on_message(self, client, userdata, msg):
-        print(msg.topic)
         topic_parts = msg.topic.split('/')
         if len(topic_parts) != 2 or (topic_parts[0] not in OUR_TOPIC_LIST):
             return

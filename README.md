@@ -35,7 +35,8 @@ systemctl daemon-reload
 systemctl enable pochinok.service
 systemctl start pochinok.service
 systemctl status pochinok.service
-journalctl -u pochinok.service --since "10 minutes ago" -f 
+journalctl -u pochinok.service --since "10 minutes ago" -f
+systemctl stop pochinok.service
 ### Ссылки ###
 * https://github.com/smartboxchannel/EFEKTA-eTH102z
 
