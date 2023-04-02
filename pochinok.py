@@ -70,8 +70,8 @@ class Pochinok:
                 if event.voltage is not None:
                     self.update_state(f'{friendly_name}_voltage', event.voltage)
             case 'T1' | 'T2' | 'T3' | 'T4' | 'E-ink':
-                self.update_state(f'{friendly_name}_temperature', event.temperature)
-                self.update_state(f'{friendly_name}_humidity', event.humidity)
+                self.update_state(f'{friendly_name}_temperature', round(float(event.temperature), 1))
+                self.update_state(f'{friendly_name}_humidity', round(float(event.humidity)))
                 self.update_state(f'{friendly_name}_battery', event.battery)
                 if event.illuminance_lux is not None:
                     self.update_state(f'{friendly_name}_illuminance_lux', event.illuminance_lux)
