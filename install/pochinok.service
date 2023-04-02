@@ -1,0 +1,23 @@
+[Unit]
+Description=Модуль умного дома "Починок"
+# Указывает, что юнит должен быть запущен после группы указанных сервисов
+After=syslog.target
+After=network.target
+After=mariadb.service
+After=mosquitto.service
+
+[Service]
+Type=simple
+PIDFile=/var/lib/pochinok.pid
+WorkingDirectory=/projects/smart_home/
+User=root
+Group=root
+Environment=PYTHONPATH=/projects/smart_home/
+OOMScoreAdjust=-100
+ExecStart=/usr/bin/python3 -u pochinok.py
+#ExecStop=
+#ExecReload=
+TimeoutSec=300
+Restart=always
+[Install]
+WantedBy=multi-user.target
